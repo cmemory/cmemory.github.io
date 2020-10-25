@@ -251,7 +251,7 @@
   
 
   <article class="post post-type-normal " itemscope="" itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/24/golang-sort/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/25/golang-sort（二）/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="cmemory">
@@ -273,7 +273,130 @@
             
               
                 
-                <a class="post-title-link" href="/2020/10/24/golang-sort/" itemprop="url">
+                <a class="post-title-link" href="/2020/10/25/golang-sort（二）/" itemprop="url">
+                  golang-sort（二）
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-10-25T22:18:32+08:00">
+                2020-10-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>之前有介绍的Sort排序，是一种不稳定的排序。golang中还有一种稳定的排序Stable。</p>
+<p>stable的排序是思想是merge的形式，通常归并排序是需要额外空间的，这里通过巧妙的rotate方式实现in place的归并。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Stable</span><span class="params">(data Interface)</span></span> &#123;</span><br><span class="line">	stable(data, data.Len())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">stable</span><span class="params">(data Interface, n <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	blockSize := <span class="number">20</span> <span class="comment">// must be &gt; 0</span></span><br><span class="line">	a, b := <span class="number">0</span>, blockSize</span><br><span class="line">    <span class="comment">// 按20个元素一块进行分组，每组内使用插入排序先排好序</span></span><br><span class="line">	<span class="keyword">for</span> b &lt;= n &#123;</span><br><span class="line">		insertionSort(data, a, b)</span><br><span class="line">		a = b</span><br><span class="line">		b += blockSize</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="comment">// 处理最后一个不足20个元素的块</span></span><br><span class="line">	insertionSort(data, a, n)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 每轮循环会翻倍步长（合并后块元素加倍）</span></span><br><span class="line">	<span class="keyword">for</span> blockSize &lt; n &#123;</span><br><span class="line">		a, b = <span class="number">0</span>, <span class="number">2</span>*blockSize</span><br><span class="line">        <span class="comment">// 每轮循环，从前往后合并相邻的块</span></span><br><span class="line">		<span class="keyword">for</span> b &lt;= n &#123;</span><br><span class="line">            <span class="comment">// in place 主要的合并操作，后面讲解</span></span><br><span class="line">			symMerge(data, a, a+blockSize, b)</span><br><span class="line">			a = b</span><br><span class="line">			b += <span class="number">2</span> * blockSize</span><br><span class="line">		&#125;</span><br><span class="line">        <span class="comment">// 最后剩余的1块多进行合并</span></span><br><span class="line">		<span class="keyword">if</span> m := a + blockSize; m &lt; n &#123;</span><br><span class="line">			symMerge(data, a, m, n)</span><br><span class="line">		&#125;</span><br><span class="line">		blockSize *= <span class="number">2</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope="" itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/24/golang-sort（一）/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="cmemory">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Miracle">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2020/10/24/golang-sort（一）/" itemprop="url">
                   golang-sort
                 </a>
               
@@ -338,7 +461,9 @@
 <p>Sort中快排基准点选择使用的是基于采样的<a href="https://www.johndcook.com/blog/2009/06/23/tukey-median-ninther/" target="_blank" rel="noopener">median of three medians of three</a>方式。<br>1、对于集合开始、中间、末尾分别采样3个元素。<br>2、分别求采样的三个部分各自中位数，得到3个数。<br>3、求这3个数的中位数，即作为基准元素进行一次的划分。</p>
 <p>从上面我们可以知道，对于选择的基准点p，集合中至少有3+1个元素&gt;=p，且至少有3+1个元素&lt;=p。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 排序3个元素使得data[m0] &lt;= data[m1] &lt;= data[m2]，从而我们知道m1处的元素即为中位数。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">medianOfThree</span><span class="params">(data Interface, m1, m0, m2 <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> data.Less(m1, m0) &#123;</span><br><span class="line">		data.Swap(m1, m0)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> data.Less(m2, m1) &#123;</span><br><span class="line">		data.Swap(m2, m1)</span><br><span class="line">		<span class="keyword">if</span> data.Less(m1, m0) &#123;</span><br><span class="line">			data.Swap(m1, m0)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">doPivot</span><span class="params">(data Interface, lo, hi <span class="keyword">int</span>)</span> <span class="params">(midlo, midhi <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	m := <span class="keyword">int</span>(<span class="keyword">uint</span>(lo+hi) &gt;&gt; <span class="number">1</span>)	<span class="comment">// 避免int溢出</span></span><br><span class="line">	<span class="keyword">if</span> hi-lo &gt; <span class="number">40</span> &#123;</span><br><span class="line">		s := (hi - lo) / <span class="number">8</span>	<span class="comment">// 选择采样步长</span></span><br><span class="line">        <span class="comment">// 在头、中、尾分别采样，计算相应的中位数放置在lo、m、hi-1位置</span></span><br><span class="line">		medianOfThree(data, lo, lo+s, lo+<span class="number">2</span>*s)</span><br><span class="line">		medianOfThree(data, m, m-s, m+s)</span><br><span class="line">		medianOfThree(data, hi<span class="number">-1</span>, hi<span class="number">-1</span>-s, hi<span class="number">-1</span><span class="number">-2</span>*s)</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="comment">// 取lo、m、hi-1位置的数，计算中位数放在首位</span></span><br><span class="line">	medianOfThree(data, lo, m, hi<span class="number">-1</span>)</span><br><span class="line">    -----------------------------------------------------------------</span><br><span class="line">	<span class="comment">// 不变式:</span></span><br><span class="line">	<span class="comment">// 1、data[lo] = pivot (选择的基准)</span></span><br><span class="line">	<span class="comment">// 2、data[lo &lt; i &lt; a] &lt; pivot (由下面第一个for循环保证)</span></span><br><span class="line">	<span class="comment">// 3、data[a &lt;= i &lt; b] &lt;= pivot </span></span><br><span class="line">	<span class="comment">// 4、data[b &lt;= i &lt; c] unexamined</span></span><br><span class="line">	<span class="comment">// 5、data[c &lt;= i &lt; hi-1] &gt; pivot</span></span><br><span class="line">	<span class="comment">// 6、data[hi-1] &gt;= pivot (有前面中位数选择保证)</span></span><br><span class="line">	pivot := lo</span><br><span class="line">	a, c := lo+<span class="number">1</span>, hi<span class="number">-1</span></span><br><span class="line">	<span class="comment">// 不变式的2由这个循环保证</span></span><br><span class="line">	<span class="keyword">for</span> ; a &lt; c &amp;&amp; data.Less(a, pivot); a++ &#123;</span><br><span class="line">	&#125;</span><br><span class="line">	b := a</span><br><span class="line">    <span class="comment">// 不变式的3、4、5由这个循环保证，将剩下元素划分为&lt;=和&gt;两个部分。</span></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">for</span> ; b &lt; c &amp;&amp; !data.Less(pivot, b); b++ &#123; <span class="comment">// data[b] &lt;= pivot</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">for</span> ; b &lt; c &amp;&amp; data.Less(pivot, c<span class="number">-1</span>); c-- &#123; <span class="comment">// data[c-1] &gt; pivot</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> b &gt;= c &#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">        <span class="comment">// data[b] &gt; pivot; data[c-1] &lt;= pivot</span></span><br><span class="line">        <span class="comment">// 交换并缩减比较范围</span></span><br><span class="line">		data.Swap(b, c<span class="number">-1</span>)</span><br><span class="line">		b++</span><br><span class="line">		c--</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="comment">// 经过前面的操作，得到如下划分：(这里应该有b==c)</span></span><br><span class="line">    <span class="comment">// 1、data[lo] = pivot</span></span><br><span class="line">    <span class="comment">// 2、data[lo &lt; i &lt; a] &lt; pivot</span></span><br><span class="line">    <span class="comment">// 3、data[a &lt;= i &lt; b] &lt;= pivot </span></span><br><span class="line">    <span class="comment">// 4、data[c &lt;= i &lt; hi-1] &gt; pivot</span></span><br><span class="line">    <span class="comment">// 5、data[hi-1] &gt;= pivot (有前面中位数选择保证)</span></span><br><span class="line">    <span class="comment">// 后面要做的是尽可能将与基准相等的元素放在[b,c)，保证尽可能少的元素再参与递归处理。</span></span><br><span class="line">    <span class="comment">// 事实上，相同的元素不做处理也是可以的，只是如果相同元素过多会影响性能。</span></span><br><span class="line">    ----------------------------------------------------------------</span><br><span class="line">    <span class="comment">// 前面说过，集合中至少有4个元素&gt;=基准，不算基准有3个&gt;=基准</span></span><br><span class="line">    <span class="comment">// 所以当hi-c &lt; 3的时候，集合中前面一定有等于基准的元素。</span></span><br><span class="line">    <span class="comment">// 这里比较保守，边界设置的5。小于5就认为需要检查。</span></span><br><span class="line">	protect := hi-c &lt; <span class="number">5</span></span><br><span class="line">	<span class="keyword">if</span> !protect &amp;&amp; hi-c &lt; (hi-lo)/<span class="number">4</span> &#123;</span><br><span class="line">        <span class="comment">// 当[c, hi)的元素个数&gt;=5且&lt;总元素个数的1/4时</span></span><br><span class="line">        <span class="comment">// 选取一些点测试是否与基准相等</span></span><br><span class="line">		dups := <span class="number">0</span></span><br><span class="line">        <span class="comment">// 检测hi-1处元素，因为没有equals函数，所以只能这样检查。</span></span><br><span class="line">		<span class="keyword">if</span> !data.Less(pivot, hi<span class="number">-1</span>) &#123; <span class="comment">// data[hi-1] &lt;= pivot</span></span><br><span class="line">			data.Swap(c, hi<span class="number">-1</span>)</span><br><span class="line">			c++</span><br><span class="line">			dups++</span><br><span class="line">		&#125;</span><br><span class="line">        <span class="comment">// 检测b-1处元素是否与基准相等，如果相等则b==c-1，不等则b==c</span></span><br><span class="line">		<span class="keyword">if</span> !data.Less(b<span class="number">-1</span>, pivot) &#123; <span class="comment">// data[b-1] &gt;= pivot</span></span><br><span class="line">			b--</span><br><span class="line">			dups++</span><br><span class="line">		&#125;</span><br><span class="line">        </span><br><span class="line">		<span class="comment">// m-lo = (hi-lo)/2</span></span><br><span class="line">        <span class="comment">// 由if条件可知：hi-c &lt; (hi-lo)/4 ==&gt; c-lo&gt;(hi-lo)3/4</span></span><br><span class="line">        <span class="comment">// 又因为b&lt;=c，事实上b==c或者b==c-1，则b-lo&gt;(hi-lo)3/4-1</span></span><br><span class="line">        <span class="comment">// ==&gt; b-lo &gt; m-lo</span></span><br><span class="line">		<span class="comment">// ==&gt; m &lt; b ==&gt; data[m] &lt;= pivot</span></span><br><span class="line">		<span class="keyword">if</span> !data.Less(m, pivot) &#123; <span class="comment">// data[m] = pivot</span></span><br><span class="line">			data.Swap(m, b<span class="number">-1</span>)</span><br><span class="line">			b--</span><br><span class="line">			dups++</span><br><span class="line">		&#125;</span><br><span class="line">        <span class="comment">// 如果三个检测点中至少有两个点都与基准相等，则假定偏态分布</span></span><br><span class="line">        <span class="comment">// 前面可能还有很多与基准相等的点，需要进行遍历检测处理。</span></span><br><span class="line">		protect = dups &gt; <span class="number">1</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> protect &#123;</span><br><span class="line">        <span class="comment">// 检查与基准相同元素，根据我们前面划分，只需要判断[a,b)的元素就可以了。</span></span><br><span class="line">        <span class="comment">// 处理过程跟前面划分集合为&lt;=和&gt;两部分类似。</span></span><br><span class="line">		<span class="comment">// 循环不变式:</span></span><br><span class="line">		<span class="comment">//	data[a &lt;= i &lt; b] 待检测</span></span><br><span class="line">		<span class="comment">//	data[b &lt;= i &lt; c] = pivot</span></span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">            <span class="comment">// 循环，遇到与基准相等的，b--，继续检查</span></span><br><span class="line">			<span class="keyword">for</span> ; a &lt; b &amp;&amp; !data.Less(b<span class="number">-1</span>, pivot); b-- &#123; <span class="comment">// data[b] == pivot</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">for</span> ; a &lt; b &amp;&amp; data.Less(a, pivot); a++ &#123; <span class="comment">// data[a] &lt; pivot</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> a &gt;= b &#123;</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">// data[a] == pivot; data[b-1] &lt; pivot</span></span><br><span class="line">			data.Swap(a, b<span class="number">-1</span>)</span><br><span class="line">			a++</span><br><span class="line">			b--</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="comment">// 将基准放到合适的位置，最终[lo, b-1)都小于基准。[c，hi)都大于基准。</span></span><br><span class="line">	data.Swap(pivot, b<span class="number">-1</span>)</span><br><span class="line">	<span class="keyword">return</span> b - <span class="number">1</span>, c</span><br></pre></td></tr></table></figure>
-<h3 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">heapSort</span><span class="params">(data Interface, a, b <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	first := a</span><br><span class="line">	lo := <span class="number">0</span></span><br><span class="line">	hi := b - a</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 构建大根堆，需要依次遍历节点，调整以节点为根的树成为大根堆。</span></span><br><span class="line">    <span class="comment">// 由于调整当前节点时，必须保证子树都已经是大根堆，所以这里从后往前遍历。</span></span><br><span class="line">    <span class="comment">// 显然叶子节点只有单个节点，就是一个大根堆，不需要处理。</span></span><br><span class="line">	<span class="keyword">for</span> i := (hi - <span class="number">1</span>) / <span class="number">2</span>; i &gt;= <span class="number">0</span>; i-- &#123;</span><br><span class="line">		siftDown(data, i, hi, first)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 每次取最大（堆顶）元素与堆末尾元素交换。然后调整堆使重新成为大根堆。</span></span><br><span class="line">    <span class="comment">// 每次操作，堆中元素会少一个，而有序的元素会加一。</span></span><br><span class="line">    <span class="comment">// 最终会形成一个从小到大排好序的序列。</span></span><br><span class="line">	<span class="keyword">for</span> i := hi - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i-- &#123;</span><br><span class="line">		data.Swap(first, first+i)</span><br><span class="line">		siftDown(data, lo, i, first)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// siftDown，节点lo依次向下比较，使得以lo为根的树是一个大根堆。</span></span><br><span class="line"><span class="comment">// 注意调整lo为根的树时，必须保证lo的子树都已经是大根堆。</span></span><br><span class="line"><span class="comment">// 这里由于集合元素是[0, hi)，所以判断是否有子节点使用2*root+1&gt;=hi。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">siftDown</span><span class="params">(data Interface, lo, hi, first <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	root := lo</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		child := <span class="number">2</span>*root + <span class="number">1</span></span><br><span class="line">        <span class="comment">// 判断是否有子节点，没有则直接跳出循环返回。</span></span><br><span class="line">		<span class="keyword">if</span> child &gt;= hi &#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">        <span class="comment">// 先比较两个孩子节点，child最终指向大的那个孩子。</span></span><br><span class="line">        <span class="comment">// 默认child是指向左孩子的，如果没有右孩子，child仍然是指向大的那个孩子。</span></span><br><span class="line">		<span class="keyword">if</span> child+<span class="number">1</span> &lt; hi &amp;&amp; data.Less(first+child, first+child+<span class="number">1</span>) &#123;</span><br><span class="line">			child++</span><br><span class="line">		&#125;</span><br><span class="line">        <span class="comment">// 对比较大的孩子与当前节点，如果当前节点大，则不用变动就是大根，直接返回</span></span><br><span class="line">		<span class="keyword">if</span> !data.Less(first+root, first+child) &#123;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">        <span class="comment">// 孩子节点大于当前节点，则需要交换。</span></span><br><span class="line">        <span class="comment">// 交换后破坏了所交换孩子的那颗子树，需要重新调整为大根堆。</span></span><br><span class="line">		data.Swap(first+root, first+child)</span><br><span class="line">		root = child</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h3><p>构建堆的方式主要有两种：<br>1、sift_down，从上往下调整堆。已有的堆作为子树，向根加节点，调整使得新树成为堆。<br>2、sift_up，从下往上调整堆。已有堆，向树的最后的叶子后面加节点，调整新树成为堆。</p>
+<p>如果修改堆中的某个元素，则需要判断值是变大还是变小，从而选择down或up方式来调整堆。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">heapSort</span><span class="params">(data Interface, a, b <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	first := a</span><br><span class="line">	lo := <span class="number">0</span></span><br><span class="line">	hi := b - a</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 构建大根堆，需要依次遍历节点，调整以节点为根的树成为大根堆。</span></span><br><span class="line">    <span class="comment">// 由于调整当前节点时，必须保证子树都已经是大根堆，所以这里从后往前遍历。</span></span><br><span class="line">    <span class="comment">// 显然叶子节点只有单个节点，就是一个大根堆，不需要处理。</span></span><br><span class="line">	<span class="keyword">for</span> i := (hi - <span class="number">1</span>) / <span class="number">2</span>; i &gt;= <span class="number">0</span>; i-- &#123;</span><br><span class="line">		siftDown(data, i, hi, first)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 每次取最大（堆顶）元素与堆末尾元素交换。然后调整堆使重新成为大根堆。</span></span><br><span class="line">    <span class="comment">// 每次操作，堆中元素会少一个，而有序的元素会加一。</span></span><br><span class="line">    <span class="comment">// 最终会形成一个从小到大排好序的序列。</span></span><br><span class="line">	<span class="keyword">for</span> i := hi - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i-- &#123;</span><br><span class="line">		data.Swap(first, first+i)</span><br><span class="line">		siftDown(data, lo, i, first)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// siftDown，节点lo依次向下比较，使得以lo为根的树是一个大根堆。</span></span><br><span class="line"><span class="comment">// 注意调整lo为根的树时，必须保证lo的子树都已经是大根堆。</span></span><br><span class="line"><span class="comment">// 这里由于集合元素是[0, hi)，所以判断是否有子节点使用2*root+1&gt;=hi。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">siftDown</span><span class="params">(data Interface, lo, hi, first <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	root := lo</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		child := <span class="number">2</span>*root + <span class="number">1</span></span><br><span class="line">        <span class="comment">// 判断是否有子节点，没有则直接跳出循环返回。</span></span><br><span class="line">		<span class="keyword">if</span> child &gt;= hi &#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">        <span class="comment">// 先比较两个孩子节点，child最终指向大的那个孩子。</span></span><br><span class="line">        <span class="comment">// 默认child是指向左孩子的，如果没有右孩子，child仍然是指向大的那个孩子。</span></span><br><span class="line">		<span class="keyword">if</span> child+<span class="number">1</span> &lt; hi &amp;&amp; data.Less(first+child, first+child+<span class="number">1</span>) &#123;</span><br><span class="line">			child++</span><br><span class="line">		&#125;</span><br><span class="line">        <span class="comment">// 对比较大的孩子与当前节点，如果当前节点大，则不用变动就是大根，直接返回</span></span><br><span class="line">		<span class="keyword">if</span> !data.Less(first+root, first+child) &#123;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">        <span class="comment">// 孩子节点大于当前节点，则需要交换。</span></span><br><span class="line">        <span class="comment">// 交换后破坏了所交换孩子的那颗子树，需要重新调整为大根堆。</span></span><br><span class="line">		data.Swap(first+root, first+child)</span><br><span class="line">		root = child</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
           
         
@@ -824,7 +949,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">posts</span>
               </a>
             </div>
@@ -837,7 +962,7 @@
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">2</span>
                 <span class="site-state-item-name">tags</span>
               
             </div>
